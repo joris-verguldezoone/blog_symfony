@@ -15,10 +15,23 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use App\Repository\ArticleRepository;
 use App\Form\ArticleType;
+use App\Entity\Comment;
+use App\Form\CommentType;
 
 
 class HomeController extends AbstractController
 {
+    /**
+     * @Route("/", name="/")
+     */
+    public function zozo(ArticlesRepository $repo): Response
+    {
+        // $repo = $this->getDoctrine()->getRepository(Articles::class);
+        $articles = $repo->findAll();
+        return $this->render('home/index.html.twig', [
+            'controller_name' => 'HomeController', 'title' => 'Accueil', 'articles' => $articles
+        ]);
+    }
     /**
      * @Route("/home", name="home")
      */
@@ -86,15 +99,28 @@ class HomeController extends AbstractController
     /**
      * @Route("/blog/article/{id}", name="blog_show")
      */
-    public function show(Articles $article): Response
+    public function show(Articles $article, Request $request, EntityManagerInterface $manager): Response
     {
+        $comment = new Comment();
+        $form = $this->createForm(CommentType::class, $comment);
         // detecte via l'url quel est l'id
         // $repo = $this->getDoctrine()->getRepository(Articles::class);
 
         // $article = $repo->find($id);
 
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $comment->setCreatedAt(new \DateTime())
+                ->setArticle($article);
+            $manager->persist($comment);
+            $manager->flush();
+
+            return $this->redirectToRoute('blog_show', ['id' => $article->getId()]);
+        }
+
         return $this->render('blog/show.html.twig', [
-            'article' => $article
+            'article' => $article,
+            'commentForm' => $form->createView()
         ]);
     }
 }

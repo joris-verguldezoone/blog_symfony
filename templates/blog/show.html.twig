@@ -2,7 +2,9 @@
 
 {% block body %}
 	<article>
-		<h2>{{article.title}}</h2>
+		<h2>{{article.comments | length}}
+			commentaires:
+		</h2>
 		<div class="metadata div content">
 			<p>Ecrit le
 				{{article.createdAt | date('d/m/Y')}}
@@ -30,6 +32,19 @@
 					</div>
 				</div>
 			{% endfor %}
+			{% if app.user %}
+				{{ form_start(commentForm) }}
+				{{  form_row(commentForm.author, {'attr': {'placeholder': "Votre nom"}}) }}
 
-		</section>
-	{% endblock %}
+				{{  form_row(commentForm.content, {'attr': {'placeholder': "Votre commentaire"}}) }}
+				<button type="submit" class='btn btn-success'>Commenter
+				</button>
+				{{ form_end(commentForm)}}
+			{% else %}
+				<h2>Vous ne pouvez pas commenter si vous n'êtes pas connecté</h2>
+				<a href="{{ path('security_login') }}" class='btn btn-primary'>Connexion<a/>
+				{% endif %}
+
+
+			</section>
+		{% endblock %}
