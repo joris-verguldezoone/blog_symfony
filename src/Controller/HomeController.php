@@ -123,4 +123,41 @@ class HomeController extends AbstractController
             'commentForm' => $form->createView()
         ]);
     }
+
+    /**
+     * @Route("/blog/finded/articles", name="selected_articles")
+     */
+    public function findKeyWord()
+    {
+        $word = $_GET['searchKeyWord'];
+        $repository = $this->getDoctrine()->getRepository(Articles::class);
+        // $repository->where();
+
+        $articlesFinded = $repository->findBy(['title' => $word]);
+        //     ['title' => $word]
+        // );
+        // var_dump($word);
+        // var_dump($articlesFinded);
+
+        return $this->render('blog/findedArticles.html.twig', [
+            'articles' => $articlesFinded,
+            'title' => "Recherche"
+        ]);
+    }
 }
+
+/*
+
+  public function searchWord($word)
+    {
+        $keyword = htmlspecialchars($word);
+        $sql = "SELECT * FROM articles WHERE LOCATE(:word, `titre`) OR LOCATE(:word, `description`)";
+        $result = $this->pdo->prepare($sql);
+        $result->bindValue(":word", $keyword);
+        $result->execute();
+        $fetch = $result->fetchAll();
+
+        return $fetch;
+    }
+
+*/
